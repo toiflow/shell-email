@@ -26,7 +26,7 @@ ANALYSIS=$(/opt/homebrew/bin/openclaw agent --session-id must-update_email_conte
 $EMAILS" 2>&1 | grep -v "Gateway agent failed" | grep -v "falling back" | grep -v "gateway closed" | grep -v "loopback" | grep -v "compaction")
 
 # save analysis to md file
-echo "$ANALYSIS" > /tmp/must-inbox.md
+echo "$ANALYSIS" > /tmp/must-email.md
 
 # send email with md attachment via Mail app
 osascript <<EOF
@@ -35,7 +35,7 @@ tell application "Mail"
     tell newMsg
         make new to recipient with properties {address:"jayreck996@gmail.com"}
         make new cc recipient with properties {address:"jayreck@gmail.com"}
-        make new attachment with properties {file name:(POSIX file "/tmp/must-inbox.md") as alias}
+        make new attachment with properties {file name:(POSIX file "/tmp/must-email.md") as alias}
     end tell
     send newMsg
 end tell
