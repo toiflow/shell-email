@@ -22,13 +22,16 @@ end tell
 EOF
 )
 
-# save emails to temp file
-echo "$EMAILS" > /tmp/must-emails-raw.txt
+# kill any lingering openclaw processes before starting
+pkill -9 -f "openclaw" 2>/dev/null
+sleep 2
 
 # clear session cache before running
 setopt NULL_GLOB; rm -f ~/.openclaw/agents/main/sessions/must-update_email_content.jsonl*; unsetopt NULL_GLOB
 
-ANALYSIS=$(/opt/homebrew/bin/openclaw agent --session-id must-update_email_content -m "analyze the flagged emails in /tmp/must-emails-raw.txt, only today mails, group them by topic/sender, highlight anything urgent or needing action." 2>&1 | grep -v "Gateway agent failed" | grep -v "falling back" | grep -v "gateway closed" | grep -v "loopback" | grep -v "compaction")
+ANALYSIS=$(/opt/homebrew/bin/openclaw agent --session-id must-update_email_content -m "Do not search the web or use any external tools. Only use the data below. Group these flagged emails by topic/sender and highlight anything urgent or needing action:
+
+$EMAILS" 2>&1 | grep -v "Gateway agent failed" | grep -v "falling back" | grep -v "gateway closed" | grep -v "loopback" | grep -v "compaction")
 
 # save analysis to md file
 echo "$ANALYSIS" > /tmp/must-email.md
