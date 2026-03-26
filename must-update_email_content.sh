@@ -4,12 +4,16 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 EMAILS=$(osascript <<'EOF'
 tell application "Mail"
     set flaggedMsgs to (messages of inbox whose flagged status is true)
+    set todayDate to current date
+    set startOfDay to todayDate - (time of todayDate)
     set output to ""
     repeat with m in flaggedMsgs
         set theSender to sender of m
         if theSender does not contain "jayreck996@gmail.com" then
             if (count of mail attachments of m) is 0 then
-                set output to output & "From: " & theSender & " | Subject: " & subject of m & "\n"
+                if (date received of m) >= startOfDay then
+                    set output to output & "From: " & theSender & " | Subject: " & subject of m & "\n"
+                end if
             end if
         end if
     end repeat
