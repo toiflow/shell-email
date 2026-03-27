@@ -30,7 +30,7 @@ sleep 2
 setopt NULL_GLOB; rm -f ~/.openclaw/agents/main/sessions/must-update_email_content.jsonl*; unsetopt NULL_GLOB
 
 # run openclaw with 120s timeout
-/opt/homebrew/bin/openclaw agent --session-id must-update_email_content -m "Do not use any tools. Do not search the web. Do not edit files. Just read and summarize the following email list. Group by topic/sender and highlight anything urgent or needing action:
+/opt/homebrew/bin/openclaw agent --session-id must-update_email_content -m "Do not use any tools. Do not search the web. Do not edit files. Just read the following email list and indicate KPIs — group by topic/sender and highlight anything urgent or needing action:
 
 $EMAILS" > /tmp/must-email-raw-output.txt 2>&1 &
 OCPID=$!
