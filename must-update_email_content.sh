@@ -29,9 +29,17 @@ sleep 2
 # clear session cache before running
 setopt NULL_GLOB; rm -f ~/.openclaw/agents/main/sessions/must-update_email_content.jsonl*; unsetopt NULL_GLOB
 
-ANALYSIS=$(/opt/homebrew/bin/openclaw agent --session-id must-update_email_content -m "Do not search the web or use any external tools. Only use the data below. Group these flagged emails by topic/sender and highlight anything urgent or needing action:
+# run openclaw with 120s timeout
+/opt/homebrew/bin/openclaw agent --session-id must-update_email_content -m "Do not use any tools. Do not search the web. Do not edit files. Just read and summarize the following email list. Group by topic/sender and highlight anything urgent or needing action:
 
-$EMAILS" 2>&1 | grep -v "Gateway agent failed" | grep -v "falling back" | grep -v "gateway closed" | grep -v "loopback" | grep -v "compaction")
+$EMAILS" > /tmp/must-email-raw-output.txt 2>&1 &
+OCPID=$!
+( sleep 120 && pkill -9 -f "openclaw" 2>/dev/null ) &
+TIMERPID=$!
+wait $OCPID
+kill $TIMERPID 2>/dev/null
+
+ANALYSIS=$(cat /tmp/must-email-raw-output.txt | grep -v "Gateway agent failed" | grep -v "falling back" | grep -v "gateway closed" | grep -v "loopback" | grep -v "compaction")
 
 # save analysis to md file
 echo "$ANALYSIS" > /tmp/must-email.md
@@ -39,7 +47,7 @@ echo "$ANALYSIS" > /tmp/must-email.md
 # send email with md attachment via Mail app
 osascript <<EOF
 tell application "Mail"
-    set newMsg to make new outgoing message with properties {subject:"must-inbox", visible:false}
+    set newMsg to make new outgoing message with properties {subject:"must-email", visible:false}
     tell newMsg
         make new to recipient with properties {address:"jayreck996@gmail.com"}
         make new cc recipient with properties {address:"jayreck@gmail.com"}
