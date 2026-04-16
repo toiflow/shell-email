@@ -22,24 +22,14 @@ end tell
 EOF
 )
 
-# kill any lingering agent session (not the gateway)
-pkill -9 -f "session-id must-update_email_content" 2>/dev/null
-sleep 2
+PROMPT="Do not use any tools. Do not search the web. Do not edit files. Just read the following email list and indicate KPIs — group by topic/sender and highlight anything urgent or needing action:
 
-# clear session cache before running
-setopt NULL_GLOB; rm -f ~/.openclaw/agents/main/sessions/must-update_email_content.jsonl*; unsetopt NULL_GLOB
+$EMAILS"
 
-# run openclaw with 120s timeout
-/Users/jayagent/.nvm/versions/node/v22.22.0/bin/openclaw agent --session-id must-update_email_content -m "Do not use any tools. Do not search the web. Do not edit files. Just read the following email list and indicate KPIs — group by topic/sender and highlight anything urgent or needing action:
-
-$EMAILS" > /tmp/must-email-raw-output.txt 2>&1 &
-OCPID=$!
-( sleep 120 && kill -9 $OCPID 2>/dev/null ) &
-TIMERPID=$!
-wait $OCPID
-kill $TIMERPID 2>/dev/null
-
-ANALYSIS=$(cat /tmp/must-email-raw-output.txt | grep -v "Gateway agent failed" | grep -v "falling back" | grep -v "gateway closed" | grep -v "loopback" | grep -v "compaction")
+# run ollama directly
+ANALYSIS=$(curl -s http://127.0.0.1:11434/api/generate \
+  -d "{\"model\":\"qwen2.5:7b\",\"prompt\":$(echo "$PROMPT" | /usr/bin/jq -Rs .),\"stream\":false}" \
+  | /usr/bin/jq -r '.response')
 
 # save analysis to md file
 echo "$ANALYSIS" > /tmp/must-email.md
