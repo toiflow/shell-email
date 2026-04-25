@@ -1,11 +1,6 @@
 #!/bin/zsh
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# dynamically get all account emails from Mail.app
-ACCOUNT_EMAILS=$(osascript -e 'tell application "Mail" to get name of every account')
-# convert comma-separated list to newline-separated for shell use
-ACCOUNT_EMAILS_LIST=$(echo "$ACCOUNT_EMAILS" | tr ',' '\n' | sed 's/^ *//' | sed 's/ *$//')
-
 EMAILS=$(osascript <<'OSEOF'
 tell application "Mail"
     set allAccounts to every account
@@ -16,8 +11,8 @@ tell application "Mail"
     repeat with acct in allAccounts
         set acctInboxes to every mailbox of acct whose name is "INBOX"
         repeat with mb in acctInboxes
-            set flaggedMsgs to (messages of mb whose flagged status is true)
-            repeat with m in flaggedMsgs
+            set allMsgs to (messages of mb)
+            repeat with m in allMsgs
                 set theSender to sender of m
                 set isSelf to false
                 repeat with addr in selfAddresses
@@ -42,16 +37,13 @@ PROMPT="Do not use any tools. Do not search the web. Do not edit files. Just rea
 
 $EMAILS"
 
-# run ollama directly
 ANALYSIS=$(curl -s http://127.0.0.1:11434/api/generate \
   -d "{\"model\":\"qwen2.5:7b\",\"prompt\":$(echo "$PROMPT" | /usr/bin/jq -Rs .),\"stream\":false}" \
   | /usr/bin/jq -r '.response')
 
-# save analysis to md file
 rm -f /tmp/must-email.md
 echo "$ANALYSIS" > /tmp/must-email.md
 
-# send analysis to every account + cc jayreck996
 osascript <<OSEOF
 tell application "Mail"
     set acctAddresses to name of every account
@@ -60,7 +52,6 @@ tell application "Mail"
         repeat with addr in acctAddresses
             make new to recipient with properties {address:addr}
         end repeat
-        make new cc recipient with properties {address:"jayreck996@gmail.com"}
         make new attachment with properties {file name:(POSIX file "/tmp/must-email.md") as alias}
     end tell
     send newMsg
