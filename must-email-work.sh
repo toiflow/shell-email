@@ -44,8 +44,8 @@ ANALYSIS=$(curl -s http://127.0.0.1:11434/api/generate \
   -d "{\"model\":\"qwen2.5:7b\",\"prompt\":$(echo "$PROMPT" | /usr/bin/jq -Rs .),\"stream\":false}" \
   | /usr/bin/jq -r '.response')
 
-rm -f /tmp/must-email.md
-echo "$ANALYSIS" > /tmp/must-email.md
+rm -f /tmp/must-email-work.md
+echo "$ANALYSIS" > /tmp/must-email-work.md
 
 osascript <<OSEOF
 tell application "Mail"
@@ -58,7 +58,7 @@ tell application "Mail"
         repeat with addr in acctAddresses
             make new to recipient with properties {address:addr}
         end repeat
-        make new attachment with properties {file name:(POSIX file "/tmp/must-email.md") as alias}
+        make new attachment with properties {file name:(POSIX file "/tmp/must-email-work.md") as alias}
     end tell
     send newMsg
 end tell
