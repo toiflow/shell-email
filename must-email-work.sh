@@ -7,7 +7,10 @@ tell application "Mail"
     set todayDate to current date
     set startOfDay to todayDate - (time of todayDate)
     set output to ""
-    set selfAddresses to name of every account
+    set selfAddresses to {}
+    repeat with acct in allAccounts
+        set end of selfAddresses to email addresses of acct
+    end repeat
     repeat with acct in allAccounts
         set acctInboxes to every mailbox of acct whose name is "INBOX"
         repeat with mb in acctInboxes
@@ -46,7 +49,10 @@ echo "$ANALYSIS" > /tmp/must-email.md
 
 osascript <<OSEOF
 tell application "Mail"
-    set acctAddresses to name of every account
+    set acctAddresses to {}
+    repeat with acct in every account
+        set end of acctAddresses to email addresses of acct
+    end repeat
     set newMsg to make new outgoing message with properties {subject:"must-email", visible:false}
     tell newMsg
         repeat with addr in acctAddresses

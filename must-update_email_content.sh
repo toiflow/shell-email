@@ -1,10 +1,6 @@
 #!/bin/zsh
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# dynamically get all account emails from Mail.app
-ACCOUNT_EMAILS=$(osascript -e 'tell application "Mail" to get name of every account')
-# convert comma-separated list to newline-separated for shell use
-ACCOUNT_EMAILS_LIST=$(echo "$ACCOUNT_EMAILS" | tr ',' '\n' | sed 's/^ *//' | sed 's/ *$//')
 
 EMAILS=$(osascript <<'OSEOF'
 tell application "Mail"
@@ -12,7 +8,10 @@ tell application "Mail"
     set todayDate to current date
     set startOfDay to todayDate - (time of todayDate)
     set output to ""
-    set selfAddresses to name of every account
+    set selfAddresses to {}
+    repeat with acct in allAccounts
+        set end of selfAddresses to email addresses of acct
+    end repeat
     repeat with acct in allAccounts
         set acctInboxes to every mailbox of acct whose name is "INBOX"
         repeat with mb in acctInboxes
@@ -54,7 +53,10 @@ echo "$ANALYSIS" > /tmp/must-email.md
 # send analysis to every account + cc jayreck996
 osascript <<OSEOF
 tell application "Mail"
-    set acctAddresses to name of every account
+    set acctAddresses to {}
+    repeat with acct in every account
+        set end of acctAddresses to email addresses of acct
+    end repeat
     set newMsg to make new outgoing message with properties {subject:"must-email", visible:false}
     tell newMsg
         repeat with addr in acctAddresses
