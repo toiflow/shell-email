@@ -15,6 +15,10 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ASSET:crontab-must-email-work 2026-04-30 → cron entry added at `0 18 * * *` for must-email-work.sh on reckagent account. Replaced launchd plist (com.user.must-email-work.plist) which failed with exit 127. Logs to /tmp/must-email-work.log.
+
+## ASSET:must-email-work.sh 2026-04-30 → Clean rewrite using must-email-personal.sh as reference. All emails + today filter, temp file /tmp/must-email-work.md, email subject "must-email-work", no CC. Resolves wrong-account content issue.
+
 ## ASSET:must-email-work.sh 2026-04-27 → Updated temp file from /tmp/must-email.md to /tmp/must-email-work.md to avoid cross-user permission conflict with personal script. Confirmed working — sends analysis email successfully.
 
 ## ASSET:crontab-must-email-personal 2026-04-25 18:10 → cron entry added at `5 18 * * *` for must-email-personal.sh on jayreck996 account. Offset 5 min from ought-update.sh (18:00) to avoid clash. Logs to /Users/jayagent/.openclaw/logs/must-email-personal.log.

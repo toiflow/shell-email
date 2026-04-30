@@ -15,6 +15,10 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ISSUE:launchd-exit-127 2026-04-30 → com.user.must-email-work.plist failed with exit code 127 (command not found) when firing automatically via launchd. Root cause not confirmed. Resolved by removing launchd schedule and switching to crontab (0 18 * * *) consistent with personal script approach.
+
+## ISSUE:work-script-pulling-wrong-account 2026-04-30 → must-email-work.sh generating analysis from jayagent account content instead of admin@toigroup.co.nz. Root cause unconfirmed — possible launchd context issue or subtle script drift. Fixed by clean rewrite of must-email-work.sh using must-email-personal.sh as reference base. Email subject updated to "must-email-work" to distinguish from personal script in inbox.
+
 ## ISSUE:tmp-cross-user-conflict 2026-04-27 → /tmp/must-email.md owned by jayagent (personal Mac user). reckagent (work Mac user) cannot rm -f or write to it. rm -f fix from 2026-04-25 was incomplete — only worked for the owning user. Fixed in must-email-work.sh by using /tmp/must-email-work.md as a unique per-script temp filename.
 
 ## ISSUE:account-name-not-email-address 2026-04-27 → `name of every account` in Mail.app AppleScript returns display name (e.g. "Google"), not actual email address. Caused emails to be sent to invalid recipients. Fixed by looping `email addresses of acct` to build address list. Applied to both selfAddresses filter and recipient list in must-email-personal.sh and must-email-work.sh.
