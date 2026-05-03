@@ -15,6 +15,8 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ISSUE:cron-automation-permission 2026-05-03 → cron not authorized to send Apple events to Mail.app (-1743). Script runs fine from terminal but fails silently when fired by cron. Fixed by enabling Mail permission for cron in System Settings → Privacy & Security → Automation. Confirmed sending successfully at 15:15.
+
 ## ISSUE:email-addresses-type-coercion 2026-04-30 → `email addresses of acct` on Google Workspace accounts returns a non-iterable type, causing -1700 coercion errors in both the selfAddresses filter and recipient build loops. Gmail accounts handle it differently and don't exhibit this. Fixed in must-email-work.sh by replacing both loops with `name of every account` which returns a clean flat list of email addresses for this account type.
 
 ## ISSUE:launchd-exit-127 2026-04-30 → com.user.must-email-work.plist failed with exit code 127 (command not found) when firing automatically via launchd. Root cause not confirmed. Resolved by removing launchd schedule and switching to crontab (0 18 * * *) consistent with personal script approach.

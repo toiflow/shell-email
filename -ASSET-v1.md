@@ -15,6 +15,8 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ASSET:cron-automation-permission 2026-05-03 → Mail permission granted to cron via System Settings → Privacy & Security → Automation on reckagent account. Required for crontab to control Mail.app. Confirmed working.
+
 ## ASSET:must-email-work.sh 2026-04-30 16:00 → Fixed email-addresses coercion error. Replaced `email addresses of acct` loops with `name of every account` in both selfAddresses filter and recipient build. Confirmed sending successfully.
 
 ## ASSET:crontab-must-email-work 2026-04-30 → cron entry added at `0 18 * * *` for must-email-work.sh on reckagent account. Replaced launchd plist (com.user.must-email-work.plist) which failed with exit 127. Logs to /tmp/must-email-work.log.
