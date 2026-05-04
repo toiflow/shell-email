@@ -44,10 +44,14 @@ ANALYSIS=$(curl -s http://127.0.0.1:11434/api/generate \
   -d "{\"model\":\"qwen2.5:7b\",\"prompt\":$(echo "$PROMPT" | /usr/bin/jq -Rs .),\"stream\":false}" \
   | /usr/bin/jq -r '.response')
 
+EMAIL_COUNT=$(echo "$EMAILS" | grep -c "From:" 2>/dev/null)
+OLLAMA_OK="false"; [[ -n "$ANALYSIS" && "$ANALYSIS" != "null" ]] && OLLAMA_OK="true"
+RESPONSE_CHARS=${#ANALYSIS}
+
 rm -f /tmp/must-email.md
 echo "$ANALYSIS" > /tmp/must-email.md
 
-osascript <<OSEOF
+MAIL_RESULT=$(osascript <<OSEOF
 tell application "Mail"
     set acctAddresses to {}
     repeat with acct in every account
@@ -64,3 +68,9 @@ tell application "Mail"
     send newMsg
 end tell
 OSEOF
+)
+MAIL_SENT="false"; [[ "$MAIL_RESULT" == "true" ]] && MAIL_SENT="true"
+
+CSV_LOG="$HOME/.openclaw/logs/must-email.csv"
+[[ ! -f "$CSV_LOG" ]] && echo "timestamp,script,emails_fetched,model,ollama_success,response_chars,mail_sent" > "$CSV_LOG"
+echo "$(date -u +"%Y-%m-%dT%H:%M:%S"),must-email-personal,${EMAIL_COUNT},qwen2.5:7b,${OLLAMA_OK},${RESPONSE_CHARS},${MAIL_SENT}" >> "$CSV_LOG"
