@@ -72,5 +72,6 @@ OSEOF
 MAIL_SENT="false"; [[ "$MAIL_RESULT" == "true" ]] && MAIL_SENT="true"
 
 CSV_LOG="$HOME/.openclaw/logs/must-email.csv"
+mkdir -p "$(dirname "$CSV_LOG")"
 [[ ! -f "$CSV_LOG" ]] && echo "timestamp,script,emails_fetched,model,ollama_success,response_chars,mail_sent" > "$CSV_LOG"
 echo "$(date -u +"%Y-%m-%dT%H:%M:%S"),must-email-personal,${EMAIL_COUNT},qwen2.5:7b,${OLLAMA_OK},${RESPONSE_CHARS},${MAIL_SENT}" >> "$CSV_LOG"

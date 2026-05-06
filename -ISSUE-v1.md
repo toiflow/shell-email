@@ -15,6 +15,10 @@ REQUIRED FORMAT FOR EACH ISSUE ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ISSUE:must-email-work 2026-05-06 → RESOLVED — multiple compounding failures prevented must-email-work.sh from delivering. Root causes: (1) email addresses of acct returns a list type on Google Workspace causing nested list recipients → messages saved to Drafts with no recipients. Fixed with `name of every account`. (2) SMTP auth failing — admin@toigroup.co.nz had no App Password configured. Fixed by enabling 2FA and generating App Password in myaccount.google.com, updating SMTP server settings in Mail.app (smtp.gmail.com:587, TLS, uncheck auto-manage). Confirmed working via cron 2026-05-06 — 16 emails fetched, delivered to inbox.
+
+## ISSUE:shell-email 2026-05-04 → must-email-work.sh exiting with code 1 — ~/.openclaw/logs/ directory did not exist on reckagent. Both CSV echo lines failed. Email and Ollama steps completed successfully but the run was marked as failed. Fixed by adding `mkdir -p "$(dirname "$CSV_LOG")"` in both must-email-work.sh and must-email-personal.sh before the CSV write. Confirmed exit 0 and CSV row written.
+
 ## ISSUE:cron-automation-permission 2026-05-03 → cron not authorized to send Apple events to Mail.app (-1743). Script runs fine from terminal but fails silently when fired by cron. Fixed by enabling Mail permission for cron in System Settings → Privacy & Security → Automation. Confirmed sending successfully at 15:15.
 
 ## ISSUE:email-addresses-type-coercion 2026-04-30 → `email addresses of acct` on Google Workspace accounts returns a non-iterable type, causing -1700 coercion errors in both the selfAddresses filter and recipient build loops. Gmail accounts handle it differently and don't exhibit this. Fixed in must-email-work.sh by replacing both loops with `name of every account` which returns a clean flat list of email addresses for this account type.

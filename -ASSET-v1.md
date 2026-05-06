@@ -15,6 +15,16 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ASSET:must-email-work.sh 2026-05-06 → Fully operational via cron on reckagent.
+- Cron: `0 18 * * *`
+- Reads all non-flagged, non-self, no-attachment emails from INBOX since midnight
+- Uses `name of every account` for selfAddresses filter and recipient list (Google Workspace fix — `email addresses of acct` returns list type)
+- Sends `.md` attachment via Mail.app to admin@toigroup.co.nz
+- SMTP: smtp.gmail.com:587, TLS, App Password auth
+- Confirmed: 16 emails fetched, inbox delivery 2026-05-06T02:10:43
+
+## ASSET:must-email-work.sh 2026-05-04 → Added `mkdir -p` before CSV log write in both must-email-work.sh and must-email-personal.sh. Resolves exit 1 on reckagent where ~/.openclaw/logs/ did not exist. Confirmed exit 0 and CSV logging operational.
+
 ## ASSET:cron-automation-permission 2026-05-03 → Mail permission granted to cron via System Settings → Privacy & Security → Automation on reckagent account. Required for crontab to control Mail.app. Confirmed working.
 
 ## ASSET:must-email-work.sh 2026-04-30 16:00 → Fixed email-addresses coercion error. Replaced `email addresses of acct` loops with `name of every account` in both selfAddresses filter and recipient build. Confirmed sending successfully.

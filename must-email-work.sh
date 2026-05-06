@@ -51,7 +51,7 @@ echo "$ANALYSIS" > /tmp/must-email-work.md
 MAIL_RESULT=$(osascript <<OSEOF
 tell application "Mail"
     set acctAddresses to name of every account
-    set newMsg to make new outgoing message with properties {subject:"must-email", visible:false}
+    set newMsg to make new outgoing message with properties {subject:"must-email-work", visible:false}
     tell newMsg
         repeat with addr in acctAddresses
             make new to recipient with properties {address:addr}
@@ -65,5 +65,6 @@ OSEOF
 MAIL_SENT="false"; [[ "$MAIL_RESULT" == "true" ]] && MAIL_SENT="true"
 
 CSV_LOG="$HOME/.openclaw/logs/must-email.csv"
+mkdir -p "$(dirname "$CSV_LOG")"
 [[ ! -f "$CSV_LOG" ]] && echo "timestamp,script,emails_fetched,model,ollama_success,response_chars,mail_sent" > "$CSV_LOG"
 echo "$(date -u +"%Y-%m-%dT%H:%M:%S"),must-email-work,${EMAIL_COUNT},qwen2.5:7b,${OLLAMA_OK},${RESPONSE_CHARS},${MAIL_SENT}" >> "$CSV_LOG"
