@@ -51,7 +51,7 @@ RESPONSE_CHARS=${#ANALYSIS}
 rm -f /tmp/must-email.md
 echo "$ANALYSIS" > /tmp/must-email.md
 
-MAIL_RESULT=$(osascript <<OSEOF
+cat > /tmp/must-email-send.scpt << 'SCPT'
 tell application "Mail"
     set acctAddresses to {}
     repeat with acct in every account
@@ -67,8 +67,14 @@ tell application "Mail"
     end tell
     send newMsg
 end tell
-OSEOF
-)
+SCPT
+osascript /tmp/must-email-send.scpt > /tmp/must-email-send.out 2>&1 &
+OSPID=$!
+(sleep 30 && kill "$OSPID" 2>/dev/null) &
+KILLPID=$!
+wait "$OSPID"
+kill "$KILLPID" 2>/dev/null; wait "$KILLPID" 2>/dev/null
+MAIL_RESULT=$(cat /tmp/must-email-send.out 2>/dev/null)
 MAIL_SENT="false"; [[ "$MAIL_RESULT" == "true" ]] && MAIL_SENT="true"
 
 CSV_LOG="$HOME/.openclaw/logs/must-email.csv"
