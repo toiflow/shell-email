@@ -15,6 +15,28 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ASSET:shell-email 2026-06-06 → pipeline fully operational end-to-end
+
+All 4 GitHub Actions jobs passing. First successful run confirmed.
+
+| Job | Status | Detail |
+|---|---|---|
+| `fetch` | ✅ | Gmail API fetched 14 emails via OAuth2 |
+| `issue` | ✅ | Ollama analysis via `must-update-content.yml` |
+| `asset` | ✅ | Ollama analysis via `must-update-content.yml` |
+| `update` | ✅ | `would-update-content.js` committed to `would/` files |
+
+**Secrets (all org-level, `toiflow`):**
+| Secret | Scope |
+|---|---|
+| `GMAIL_CLIENT_ID` | Org — all repos |
+| `GMAIL_CLIENT_SECRET` | Org — all repos |
+| `GMAIL_REFRESH_TOKEN` | Org — all repos |
+| `OLLAMA_SECRET` | Org — inherited |
+| `OLLAMA_URL` | Org — inherited |
+
+**Schedule:** cron `0 18 * * *` — 6am NZST daily
+
 ## ASSET:shell-email 2026-06-05 → migrated to toiflow org + GitHub Actions pipeline
 
 | Change | Detail |
