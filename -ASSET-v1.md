@@ -15,6 +15,20 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ASSET:shell-email 2026-06-05 → migrated to toiflow org + GitHub Actions pipeline
+
+| Change | Detail |
+|---|---|
+| Repo | `jayreck996/shell-email` → `toiflow/shell-email` |
+| Local remote | Updated to `https://github.com/toiflow/shell-email.git` |
+| Scheduler | Local cron (Mac-bound) → `.github/workflows/would-update.yml` (cron `0 18 * * *`) |
+| Email fetch | AppleScript/Mail.app → `would-read-md.js` (Gmail API, OAuth2 via fetch, no npm) |
+| Ollama | Direct call → reusable `toiflow/-toiflow/.github/workflows/must-update-access.yml` |
+| GitHub write | `would-update-content.js` — `github.token` with `contents: write` |
+| Output | `would/-content-issue-v1.md`, `would/-content-asset-v1.md` |
+| Org secrets | `OLLAMA_SECRET`, `OLLAMA_URL` inherited from toiflow org automatically |
+| Pending | Gmail OAuth secrets (`GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`) — repo-level or org-level once token obtained |
+
 ## ASSET:must-email-work.sh 2026-05-06 → Fully operational via cron on reckagent.
 - Cron: `0 18 * * *`
 - Reads all non-flagged, non-self, no-attachment emails from INBOX since midnight
