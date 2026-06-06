@@ -59,6 +59,9 @@ jobs:
       - name: Update docs
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          GMAIL_CLIENT_ID: ${{ secrets.GMAIL_CLIENT_ID }}
+          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
+          GMAIL_REFRESH_TOKEN: ${{ secrets.GMAIL_REFRESH_TOKEN }}
           ISSUE_ANALYSIS: ${{ needs.issue.outputs.response }}
           ASSET_ANALYSIS: ${{ needs.asset.outputs.response }}
         run: node would-update-content.js

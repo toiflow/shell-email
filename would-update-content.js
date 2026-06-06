@@ -1,11 +1,15 @@
 #!/usr/bin/env node
-// would-update-content.js — insert pre-computed analyses into GitHub would/ files
-// Usage: GITHUB_TOKEN=... ISSUE_ANALYSIS=... ASSET_ANALYSIS=... node would-update-content.js
+// would-update-content.js — insert pre-computed analyses into GitHub would/ files, then email
+// Usage: GITHUB_TOKEN=... GMAIL_CLIENT_ID=... GMAIL_CLIENT_SECRET=... GMAIL_REFRESH_TOKEN=... ISSUE_ANALYSIS=... ASSET_ANALYSIS=... node would-update-content.js
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const GITHUB_OWNER = 'toiflow';
-const GITHUB_REPO  = 'ts-inbox';
-const ANCHOR = '####### <!-- ANCHOR MARKER - ADD ALL NEW ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ENTRIES-->';
+const GITHUB_TOKEN  = process.env.GITHUB_TOKEN;
+const GITHUB_OWNER  = 'toiflow';
+const GITHUB_REPO   = 'ts-inbox';
+const ANCHOR        = '####### <!-- ANCHOR MARKER - ADD ALL NEW ENTRIES DIRECTLY BELOW THIS LINE, NEVER DELETE OR EDIT PREVIOUS ENTRIES-->';
+const CLIENT_ID     = process.env.GMAIL_CLIENT_ID;
+const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET;
+const REFRESH_TOKEN = process.env.GMAIL_REFRESH_TOKEN;
+const EMAIL_TO      = 'jayreck996@gmail.com';
 
 function nzTimestamp() {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -15,6 +19,13 @@ function nzTimestamp() {
   }).formatToParts(new Date());
   const get = t => parts.find(p => p.type === t).value;
   return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}`;
+}
+
+function nzDate() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Pacific/Auckland',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date());
 }
 
 async function githubGet(path) {
@@ -36,7 +47,7 @@ async function githubPut(path, sha, content, message) {
       body: JSON.stringify({
         message, sha,
         content: Buffer.from(content).toString('base64'),
-        committer: { name: 'shell-email', email: 'jayreck996@gmail.com' }
+        committer: { name: 'ts-inbox', email: 'jayreck996@gmail.com' }
       })
     }
   );
@@ -50,6 +61,64 @@ function insertEntry(fileContent, entry) {
   return fileContent.slice(0, at) + '\n' + entry + '\n' + fileContent.slice(at);
 }
 
+async function refreshAccessToken() {
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id:     CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      refresh_token: REFRESH_TOKEN,
+      grant_type:    'refresh_token'
+    })
+  });
+  if (!res.ok) throw new Error(`Token refresh failed: ${res.status} ${await res.text()}`);
+  return (await res.json()).access_token;
+}
+
+function buildMime(date, issueAnalysis, assetAnalysis) {
+  const boundary = 'must_email_boundary_001';
+  const filename  = `must-email-${date}.md`;
+  const mdContent = `# must-email ${date}\n\n## Issues\n\n${issueAnalysis}\n\n## Assets\n\n${assetAnalysis}\n`;
+  const mdBase64  = Buffer.from(mdContent).toString('base64');
+
+  const raw = [
+    `MIME-Version: 1.0`,
+    `To: ${EMAIL_TO}`,
+    `Subject: must-email`,
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/plain; charset=utf-8`,
+    ``,
+    `Daily inbox analysis — see attached ${filename}`,
+    ``,
+    `--${boundary}`,
+    `Content-Type: text/markdown; charset=utf-8`,
+    `Content-Disposition: attachment; filename="${filename}"`,
+    `Content-Transfer-Encoding: base64`,
+    ``,
+    mdBase64,
+    ``,
+    `--${boundary}--`
+  ].join('\r\n');
+
+  return Buffer.from(raw).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function sendEmail(date, issueAnalysis, assetAnalysis) {
+  const token = await refreshAccessToken();
+  const raw = buildMime(date, issueAnalysis, assetAnalysis);
+  const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw })
+  });
+  if (!res.ok) throw new Error(`Gmail send failed: ${res.status} ${await res.text()}`);
+  const data = await res.json();
+  console.log(`✅ Email sent: ${data.id}`);
+}
+
 async function main() {
   if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN not set');
   const issueAnalysis = process.env.ISSUE_ANALYSIS?.trim();
@@ -57,7 +126,8 @@ async function main() {
   if (!issueAnalysis) throw new Error('ISSUE_ANALYSIS not set');
   if (!assetAnalysis) throw new Error('ASSET_ANALYSIS not set');
 
-  const ts = nzTimestamp();
+  const ts   = nzTimestamp();
+  const date = nzDate();
   console.log(`📅 ${ts}`);
 
   const issueFile = await githubGet('would/-content-issue-v1.md');
@@ -75,6 +145,12 @@ async function main() {
     `would-update: asset ${ts}`
   );
   console.log('✅ would/-content-asset-v1.md updated');
+
+  if (CLIENT_ID && CLIENT_SECRET && REFRESH_TOKEN) {
+    await sendEmail(date, issueAnalysis, assetAnalysis);
+  } else {
+    console.warn('⚠️  Gmail env not set — skipping email');
+  }
 
   console.log('\n✅ Done');
 }
