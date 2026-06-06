@@ -15,6 +15,18 @@ REQUIRED FORMAT FOR EACH ASSET ENTRY:
 
 ####### <!-- ANCHOR MARKER - ADD NEW ENTRIES BELOW -->
 
+## ASSET:ts-inbox 2026-06-06 → must-email delivery operational — Ollama analysis sent as .md attachment
+
+`would-update-content.js` now commits both `would/` files AND sends `must-email` to `jayreck996@gmail.com` in a single step.
+
+| Item | Detail |
+|---|---|
+| Subject | `must-email` |
+| Attachment | `must-email-YYYY-MM-DD.md` containing ISSUE + ASSET sections |
+| Gmail scope | `https://mail.google.com/` — re-scoped from `gmail.readonly`, new token set |
+| Trigger | Runs after both `would/-content-issue-v1.md` and `would/-content-asset-v1.md` are committed |
+| Confirmed | Workflow run passing all 4 jobs end-to-end |
+
 ## ASSET:shell-email 2026-06-06 → pipeline fully operational end-to-end
 
 All 4 GitHub Actions jobs passing. First successful run confirmed.
