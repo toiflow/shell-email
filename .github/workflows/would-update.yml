@@ -2,7 +2,7 @@ name: would-update
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # 6am NZST daily (UTC+12); shifts to 7am in NZDT (UTC+13)
+    - cron: '0 6 * * *'   # 6pm NZST daily (UTC+12); shifts to 7pm in NZDT (UTC+13)
   workflow_dispatch:
 
 jobs:
