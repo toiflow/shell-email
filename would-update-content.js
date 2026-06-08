@@ -130,21 +130,21 @@ async function main() {
   const date = nzDate();
   console.log(`📅 ${ts}`);
 
-  const issueFile = await githubGet('could/CONTENT-ISSUE-V1.md');
+  const issueFile = await githubGet(`could/CONTENT-ISSUE-${QUARTER}.md`);
   await githubPut(
-    'could/CONTENT-ISSUE-V1.md', issueFile.sha,
+    `could/CONTENT-ISSUE-${QUARTER}.md`, issueFile.sha,
     insertEntry(issueFile.content, `## ISSUE:EMAIL ${ts}\n${issueAnalysis}`),
     `would-update: issue ${ts}`
   );
-  console.log('✅ could/CONTENT-ISSUE-V1.md updated');
+  console.log(`✅ could/CONTENT-ISSUE-${QUARTER}.md updated`);
 
-  const assetFile = await githubGet('could/CONTENT-ASSET-V1.md');
+  const assetFile = await githubGet(`could/CONTENT-ASSET-${QUARTER}.md`);
   await githubPut(
-    'could/CONTENT-ASSET-V1.md', assetFile.sha,
+    `could/CONTENT-ASSET-${QUARTER}.md`, assetFile.sha,
     insertEntry(assetFile.content, `## ASSET:EMAIL ${ts}\n${assetAnalysis}`),
     `would-update: asset ${ts}`
   );
-  console.log('✅ could/CONTENT-ASSET-V1.md updated');
+  console.log(`✅ could/CONTENT-ASSET-${QUARTER}.md updated`);
 
   if (CLIENT_ID && CLIENT_SECRET && REFRESH_TOKEN) {
     await sendEmail(date, issueAnalysis, assetAnalysis);
